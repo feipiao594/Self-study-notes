@@ -1,3 +1,13 @@
+---
+title: Chapter_1_行列式
+mathjax: true
+categories:
+- Mathematic
+- Linear_algebra
+- 线性代数
+---
+
 # 第一章 行列式
 ## 1.1 行列式的定义
 看过 `Linear_algebra\README.md`就会知道我并不是很喜欢我们教材的知识点分布，因为上来就讲行列式是一个很尴尬的事情
+<!--more-->

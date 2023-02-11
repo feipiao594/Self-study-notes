@@ -1,7 +1,16 @@
+---
+title: 初见Agent2D
+mathjax: false
+categories:
+- Cpp
+- Apollo2D
+---
+
 # 初见Agent2D
 见到这个项目本身就是异常意外，我对足球的兴趣并不大。这两天看代码也看的有一点晕，随手写下一些探索的过程吧。
 
----
+<!--more-->
+
 
 ## 项目内容
 这次的项目其实全部都在`*/NJUPT2023Apollo2D/your-team/src/bhv_penalty_kick.cpp`当中，要修改的东西也很清楚，目的就是利用已经完成的rcsc内的各种API，在**整体框架结构**不变的前提下，优化点球大战中我方`taker`和`keeper`的行为逻辑，以提高其在面对`helios`球队时候的胜率。
