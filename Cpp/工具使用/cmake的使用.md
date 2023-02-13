@@ -7,7 +7,7 @@ categories:
 ---
 # CMake的使用
 
-**Feipiao**前段时间在做csapp的lab使用到了linux，最近又完全换成了wsl，在vscode下进行 **code & study**
+**Feipiao**前段时间在做csapp的lab使用到了linux，最近把linux虚拟机换成了wsl，在vscode下进行 **code & study**
 对于在vscode上，或者直接就是在linux内进行开发，使用make这种编译配置工具就跑不了了。
 在这样的情况下，使用cmake进行**跨平台**的高级编译配置也就免不了了。
 <!--more-->
