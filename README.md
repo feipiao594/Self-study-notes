@@ -2,11 +2,10 @@
 这里是博客同步更新的GitHub仓库
 博客链接：https://feipiao594.github.io
 
-
 我当前一共有两个文件夹，一个存放的是这个仓库，下面称为**note文件夹**，另一个是博客的，下面称为**blog文件夹**，由于每次写note都要手动复制，让我这个懒人很不舒服，于是写了**两个**批处理文件，在仓库中的`qblog.bat`是其中一个
 
 使用方法如下
-将`qblog.bat`置于note文件夹下，同时在blog文件夹下放置`MoveNote2Blog.bat`，内容在本md最后,根据实际你note与博客的文件绝对地址修改两个bat的变量设置
+将`qblog.bat`置于note文件夹下，同时在blog文件夹下放置`MoveNote2Blog.bat`，这个文件在本篇文档中没有，内容在本md最后，如果要使用请自行创建文件，其作用是将note文件夹下所有`*.md`放进`_post`文件夹，请根据实际你note与博客的文件绝对地址修改两个bat的变量设置
 
 qblog使用方法如下
 1. `qblog -n <相对路径>`
