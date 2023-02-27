@@ -97,7 +97,7 @@ mov   dword ptr [rbp+0A4h],0Ah
 lea   rax,[rbp+0A4h]
 mov   qword ptr [c],rax
 ```
-这里在语法中所谓不能寻址的右值，它的位置其实也是栈上(rbp+0A4h)。
+这里在语法中所谓不能寻址的右值，它的位置其实也是栈上(rbp+0A4h)
 ```C++
 int num = 10;
 int &b = num; //正确
