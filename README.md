@@ -35,18 +35,24 @@ categories:
 
 set source=C:\daily\Self-study-notes
 set readme_name=\README.md
-set dest=C:\daily\Blog\source\_posts
+set dest=C:\daily\Blog\source
 
-del %dest%\*.md
+del %dest%\_posts\*.md
+del /q %dest%\images\*
 echo from %dest% deleted last "move"
 
 for /r "%source%" %%i in (*.md) do ( 
     echo %%i| findstr %readme_name% >nul && (
         echo %%i is README.md,skip.
     ) || (
-        copy "%%i" "%dest%"
-        echo %%i move to %dest%
+        copy "%%i" "%dest%\_posts"
+        echo %%i move to %dest%\_posts
     )
+)
+
+for /r "%source%\images" %%i in (*.*) do ( 
+    copy "%%i" "%dest%\images"
+    echo %%i move to %dest%\images
 )
 
 ```
