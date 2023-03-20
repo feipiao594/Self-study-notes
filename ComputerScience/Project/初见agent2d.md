@@ -2,8 +2,8 @@
 title: 初见Agent2D
 mathjax: false
 categories:
-- Cpp
-- Apollo2D
+- ComputerScience
+- Project
 ---
 
 # 初见Agent2D

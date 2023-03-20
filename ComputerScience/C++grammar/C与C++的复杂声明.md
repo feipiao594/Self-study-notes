@@ -2,8 +2,8 @@
 title: C/C++的特别复杂的类型
 mathjax: false
 categories:
-- Cpp
-- C++语法
+- ComputerScience
+- C++grammar
 ---
 
 # 那些C/C++的特别复杂的类型

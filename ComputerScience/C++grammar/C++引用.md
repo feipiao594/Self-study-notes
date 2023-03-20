@@ -2,8 +2,8 @@
 title: C++引用
 mathjax: false
 categories:
-- Cpp
-- C++语法
+- ComputerScience
+- C++grammar
 ---
 
 # 引用
