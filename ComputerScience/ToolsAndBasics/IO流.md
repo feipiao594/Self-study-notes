@@ -3,7 +3,7 @@ title: IO流
 mathjax: false
 categories:
 - ComputerScience
-- Tools&Basics
+- ToolsAndBasics
 ---
 
 
