@@ -1,6 +1,6 @@
 ---
 title: 广义Stokes公式的应用
-mathjax: false
+mathjax: true
 categories:
 - Mathematic
 - Analysis
