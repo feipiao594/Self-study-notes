@@ -4,7 +4,6 @@ mathjax: true
 categories:
 - Mathematic
 - Analysis
-- Math_Analysis
 ---
 
 

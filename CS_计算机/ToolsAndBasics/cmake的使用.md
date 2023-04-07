@@ -2,7 +2,7 @@
 title: CMake的使用
 mathjax: false
 categories:
-- ComputerScience
+- CS_计算机
 - ToolsAndBasics
 ---
 # CMake的使用

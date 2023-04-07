@@ -2,7 +2,7 @@
 title: CSAPP章节二中的数学公式整理
 mathjax: true
 categories:
-- ComputerScience
+- CS_计算机
 - DSA
 ---
 

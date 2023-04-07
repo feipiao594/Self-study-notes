@@ -2,7 +2,7 @@
 title: 初见Agent2D
 mathjax: false
 categories:
-- ComputerScience
+- CS_计算机
 - Project
 ---
 
