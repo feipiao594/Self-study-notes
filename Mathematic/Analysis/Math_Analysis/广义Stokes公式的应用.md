@@ -15,7 +15,7 @@ categories:
 ## 复习Stokes公式
 对于 $n$ 维微分流形 $M$ ，$\Omega\subset M$ ，$\partial\Omega$ 是一个 $n-1$ 维微分流形，为 $M$ 的**边界**，$\omega$ 为 $(n-1)$ -形式，$d\omega$ 为 $n$ -形式，可得
 $$\int_{\partial \Omega}\omega=\int_{\Omega}d\omega$$
-利用stokes公式可以将微分形式降阶升阶来进行计算，例如把重积分降为曲线积分并换元，或者说升阶使得微分形式基变为1个，方便进行累次积分
+利用stokes公式可以将微分形式降阶升阶来进行计算，例如把重积分降为曲线积分并换元，或者说升阶使得协变基变为1个，方便进行累次积分
 
 ---
 
