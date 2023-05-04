@@ -3,7 +3,8 @@ title: C++引用
 mathjax: false
 categories:
 - CS_计算机
-- C++grammar
+- Programming_Language
+- C++
 ---
 
 # 引用

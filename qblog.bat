@@ -1,12 +1,26 @@
 @echo off
 chcp 65001
-SET dest=C:\daily\Blog
+setlocal enabledelayedexpansion
+
+set "blogtarget=C:\daily\Blog\source"
+set "source=C:\daily\Self-study-notes"
+
 IF "%1"=="-s" (
-    cd "%dest%"
-    .\MoveNote2Blog.bat&&hexo clean&&hexo g&&hexo s
+    call:func
+    cd "%blogtarget%\.."
+    npx hexo clean
+    cd "%blogtarget%\.."
+    npx hexo generate
+    cd "%blogtarget%\.."
+    npx hexo server
 ) ELSE IF "%1"=="-d" (
-    cd "%dest%"
-    .\MoveNote2Blog.bat&&hexo clean&&hexo g&&hexo d
+    call:func
+    cd "%blogtarget%\.."
+    npx hexo clean
+    cd "%blogtarget%\.."
+    npx hexo generate
+    cd "%blogtarget%\.."
+    npx hexo deploy
 ) ELSE IF "%1"=="-n" (
     IF EXIST "%2" (
         echo %2| findstr : >nul && (
@@ -32,7 +46,7 @@ IF "%1"=="-s" (
         echo.>> "%2\example.md"
         echo.>> "%2\example.md"
         echo.>> "%2\example.md"
-        echo ^<!--more--^>>> "%2\example.md"
+        echo ^<^^!--more--^>>> "%2\example.md"
         exit 0
     ) ELSE (
     echo "ERROR: %2 not exist."
@@ -41,3 +55,86 @@ IF "%1"=="-s" (
   echo "ERROR: Incorrect parameter list."
 )
 
+EXIT /B 0
+
+
+:func
+set index=0
+set flag=0
+for /f "tokens=* delims=" %%a in ('dir /b /a-d "%blogtarget%\_posts\*.md"') do (
+    set "filesA[!index!]=%%a"
+    set /a index+=1
+)
+
+for /r "%source%" %%a in (*.md) do (
+    set "filename=%%~nxa"
+    set "flag=0"
+    for /l %%i in (0,1,%index%-1) do (
+        if defined filesA[%%i] (
+            if /i "!filesA[%%i]!"=="!filename!" (
+                set "filesA[%%i]=NOTE:NOTHING"
+                set "flag=1"
+            )
+        )
+    )
+    echo %%a| findstr "README.md" >nul && (
+        echo %%a is README.md,skip.
+    ) || (
+        if "!flag!"=="1" (
+            fc "%%a" "%blogtarget%\_posts\!filename!" >nul && echo %%~nxa same with target,skip ||(
+                    copy "%%a" "%blogtarget%\_posts\"
+                    echo %%a copy to %blogtarget%\_posts\
+                )
+        ) else (
+            copy "%%a" "%blogtarget%\_posts\"
+            echo %%a copy to %blogtarget%\_posts\
+        )
+    )
+)
+
+for /l %%i in (0,1,%index%-1) do (
+    if defined filesA[%%i] (
+        if "!filesA[%%i]!" neq "NOTE:NOTHING" (
+            echo %blogtarget%\_posts\!filesA[%%i]! deleted
+            del %blogtarget%\_posts\!filesA[%%i]!
+        )
+    )
+)
+
+set index=0
+for /f "tokens=* delims=" %%a in ('dir /b /a-d "%blogtarget%\images\*.*"') do (
+    set "filesB[!index!]=%%a"
+    set /a index+=1
+)
+
+for /r "%source%\images" %%a in (*.*) do (
+    set "filename=%%~nxa"
+    set "flag=0"
+    for /l %%i in (0,1,%index%-1) do (
+        if defined filesB[%%i] (
+            if /i "!filesB[%%i]!"=="!filename!" (
+                set "filesB[%%i]=NOTE:NOTHING"
+                set "flag=1"
+            )
+        )
+    )
+    if "!flag!"=="1" (
+        fc "%%a" "%blogtarget%\images\!filename!" >nul && echo %%~nxa same with target,skip ||(
+                copy "%%a" "%blogtarget%\images\"
+                echo %%a copy to %blogtarget%\images\
+            )
+    ) else (
+        copy "%%a" "%blogtarget%\images\"
+        echo %%a copy to %blogtarget%\images\
+    )
+)
+
+for /l %%i in (0,1,%index%-1) do (
+    if defined filesB[%%i] (
+        if "!filesB[%%i]!" neq "NOTE:NOTHING" (
+            echo %blogtarget%\images\!filesB[%%i]! deleted
+            del %blogtarget%\images\!filesB[%%i]!
+        )
+    )
+)
+goto:eof

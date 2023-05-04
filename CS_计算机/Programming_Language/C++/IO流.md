@@ -3,7 +3,8 @@ title: IO流
 mathjax: false
 categories:
 - CS_计算机
-- ToolsAndBasics
+- Programming_Language
+- C++
 ---
 
 

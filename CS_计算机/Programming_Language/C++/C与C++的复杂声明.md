@@ -3,7 +3,8 @@ title: C/C++的特别复杂的类型
 mathjax: false
 categories:
 - CS_计算机
-- C++grammar
+- Programming_Language
+- C++
 ---
 
 # 那些C/C++的特别复杂的类型

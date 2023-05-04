@@ -3,12 +3,13 @@ title: CSAPP章节二中的数学公式整理
 mathjax: true
 categories:
 - CS_计算机
-- DSA
+- Basic_principles
+- Computer_composition
 ---
 
 # CSAPP章节二中的数学公式整理
 
-由于这一章偏向理论，有时候能利用编码知识大大简化计算之类的，所以归为DSA一类中
+这一章偏向理论，有时候能利用编码知识大大简化计算之类的
 
 <!--more-->
 

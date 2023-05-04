@@ -3,7 +3,8 @@ title: 初见Agent2D
 mathjax: false
 categories:
 - CS_计算机
-- Project
+- Programming_Language
+- C++
 ---
 
 # 初见Agent2D
