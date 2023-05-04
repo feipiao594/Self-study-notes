@@ -2,10 +2,13 @@
 这里是博客同步更新的GitHub仓库
 博客链接：https://feipiao594.github.io
 
-我当前一共有两个文件夹，一个存放的是这个仓库，下面称为**note文件夹**，另一个是博客的，下面称为**blog文件夹**，由于每次写note都要手动复制，让我这个懒人很不舒服，于是写了**两个**批处理文件，在仓库中的`qblog.bat`是其中一个
+我当前一共有两个文件夹，一个存放的是这个仓库，下面称为**note文件夹**，另一个是博客的，下面称为**blog文件夹**，由于每次写note都要手动复制，让我这个懒人很不舒服，于是写了个批处理文件，即在仓库中的`qblog.bat`
 
 使用方法如下
-将`qblog.bat`置于note文件夹下，同时在blog文件夹下放置`MoveNote2Blog.bat`，这个文件在本篇文档中没有，内容在本md最后，如果要使用请自行创建文件，其作用是将note文件夹下所有`*.md`放进`_post`文件夹，请根据实际你note与博客的文件绝对地址修改两个bat的变量设置
+将`qblog.bat`置于note文件夹下
+请根据实际你note根目录与博客的文件(注意是要source文件夹的位置)**绝对地址**修改两个bat的变量设置
+note文件夹中不会读取README.md，除此以外均会与blog位置判断是否修改，并覆盖，如果删除note文件夹下内容，对应的blog内也会删除，防止直接误操作blog导致崩坏(笑)
+注意note文件夹下的images文件夹名字**必须是images**，该文件夹将直接与hexo中的images文件夹对应
 
 qblog使用方法如下
 1. `qblog -n <相对路径>`
@@ -27,32 +30,4 @@ categories:
 - First-level catalog
 - Second-level catalog
 ---
-```
-
-`MoveNote2Blog.bat`内容
-```
-@echo off
-
-set source=C:\daily\Self-study-notes
-set readme_name=\README.md
-set dest=C:\daily\Blog\source
-
-del %dest%\_posts\*.md
-del /q %dest%\images\*
-echo from %dest% deleted last "move"
-
-for /r "%source%" %%i in (*.md) do ( 
-    echo %%i| findstr %readme_name% >nul && (
-        echo %%i is README.md,skip.
-    ) || (
-        copy "%%i" "%dest%\_posts"
-        echo %%i move to %dest%\_posts
-    )
-)
-
-for /r "%source%\images" %%i in (*.*) do ( 
-    copy "%%i" "%dest%\images"
-    echo %%i move to %dest%\images
-)
-
 ```
