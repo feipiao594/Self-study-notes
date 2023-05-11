@@ -23,7 +23,7 @@ IF "%1"=="-s" (
     npx hexo deploy
 ) ELSE IF "%1"=="-p" (
     git add *
-    git commit -m "%date:~3% %time:~0,5%" 
+    git commit -m "%date:~3% %time:~0,5% Daily reading experience" 
 ) ELSE IF "%1"=="-n" (
     IF EXIST "%2" (
         echo %2| findstr : >nul && (
