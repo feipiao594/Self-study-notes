@@ -21,9 +21,11 @@ IF "%1"=="-s" (
     npx hexo generate
     cd "%blogtarget%\.."
     npx hexo deploy
-) ELSE IF "%1"=="-p" (
+) ELSE IF "%1"=="-c" (
     git add *
     git commit -m "%date:~3% %time:~0,5% Daily reading experience" 
+) ELSE IF "%1"=="-p" (
+    git push
 ) ELSE IF "%1"=="-n" (
     IF EXIST "%2" (
         echo %2| findstr : >nul && (

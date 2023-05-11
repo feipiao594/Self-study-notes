@@ -20,6 +20,10 @@ qblog使用方法如下
     推送当前所有博客到github服务器
 3. `qblog -s`
     推送当前所有博客并打开本地服务器
+4. `qblog -c`
+    将当前文件夹git commit，附带信息为上传时间
+5. `qblog -p`
+    即git push
 
 这里是md文件需要加入的样例头
 ```
