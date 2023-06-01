@@ -31,7 +31,7 @@ password: 123456
 
 ![image][image id]
 
-[前往github查看上图base64](https://github.com/D0n9X1n/hexo-blog-encrypt)
+[前往github查看上图base64](https://raw.githubusercontent.com/feipiao594/Self-study-notes/main/CS_%E8%AE%A1%E7%AE%97%E6%9C%BA/Tools/Hexo%E6%96%87%E7%AB%A0%E5%8A%A0%E5%AF%86.md)
 
 由于base64直接插入会占很多行，可以模仿本篇blog格式插入markdown图片
 
