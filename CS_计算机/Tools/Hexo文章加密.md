@@ -5,6 +5,8 @@ categories:
 - CS_计算机
 - Tools
 password: 123456
+abstract: --abstract--
+message: --message--
 ---
 
 
