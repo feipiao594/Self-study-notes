@@ -3,7 +3,7 @@ title: stokes公式
 mathjax: true
 categories:
 - Mathematic
-- Analysis
+- Analysis_theory
 ---
 
 # stokes公式
