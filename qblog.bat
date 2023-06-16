@@ -101,7 +101,7 @@ for /l %%i in (0,1,%index%-1) do (
     if defined filesA[%%i] (
         if "!filesA[%%i]!" neq "NOTE:NOTHING" (
             echo %blogtarget%\_posts\!filesA[%%i]! deleted
-            del %blogtarget%\_posts\!filesA[%%i]!
+            del %blogtarget%\_posts\"!filesA[%%i]!"
         )
     )
 )
@@ -138,7 +138,7 @@ for /l %%i in (0,1,%index%-1) do (
     if defined filesB[%%i] (
         if "!filesB[%%i]!" neq "NOTE:NOTHING" (
             echo %blogtarget%\images\!filesB[%%i]! deleted
-            del %blogtarget%\images\!filesB[%%i]!
+            del %blogtarget%\images\"!filesB[%%i]!"
         )
     )
 )
