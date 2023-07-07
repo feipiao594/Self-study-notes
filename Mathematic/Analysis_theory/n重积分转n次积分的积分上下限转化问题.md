@@ -36,3 +36,21 @@ categories:
 ---
 ## 任意坐标系
 可以把原空间中的坐标映射到曲纹坐标系的伴生的$ \mathbb{E^n} $的笛卡尔坐标系上的函数，再进行计算(其实就是把图形也就是点集进行转换)
+
+---
+
+## 关于n重积分可以拆成n次积分
+
+这是由**Fubini定理**决定的，定理内容如下：
+设$f:\mathbb{R}^{2}\rightarrow\mathbb{R}$是绝对可积函数、那么对于几乎每个$y\in\mathbb{R}$，$f(x,y)$是关于$r$在$\mathbb{R}^{2}$上绝对可积的，而且对于几乎每个$z\in\mathbb{R}$，$f(x,y)$是关于，在$\mathbb{R}$上绝对可积的、并且存在绝对可积函数$f:\mathbb{R}\rightarrow\mathbb{R}$以及绝对可积函数$G:\mathbb{R}\rightarrow\mathbb{R}$使得
+$$
+F(x)=\int_{\mathbb{R}}f(x,y)\mathrm{d}y
+$$
+对于几乎每个$x\in\mathbb{R}$成立，并且
+$$
+G(y)=\int_{\mathbb{R}}f(x,y)\mathrm{d}x
+$$
+对于几乎每个$y\in\mathbb{R}$成立，最后
+$$
+\int_{\mathbb{R}}F(x)\mathrm{d}x=\int_{\mathbb{R}^{2}}f=\int_{\mathbb{R}}G(y)\mathrm{d}y
+$$
