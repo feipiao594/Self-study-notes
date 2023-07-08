@@ -17,6 +17,7 @@ IF "%1"=="-m" (
     echo -----clean and generate finished-----
     cd "%source%\.."
     call %source%\qblog.bat -r
+    echo -----qblog -m complished-----
 ) ELSE IF "%1"=="-r" (
     echo -----renew files-----
     call:renew
@@ -36,6 +37,7 @@ IF "%1"=="-m" (
     echo -----hexo deploy-----
     cd "%blogtarget%\.."
     npx hexo deploy
+    echo -----qblog -d complished-----
 ) ELSE IF "%1"=="-ss" (
     echo -----hexo server-----
     cd "%blogtarget%\.."
@@ -44,13 +46,16 @@ IF "%1"=="-m" (
     echo -----hexo deploy-----
     cd "%blogtarget%\.."
     npx hexo deploy
+    echo -----qblog -sd complished-----
 ) ELSE IF "%1"=="-c" (
     echo -----git commit-----
     git add *
     git commit -m "%date:~3% %time:~0,5% Daily reading experience" 
+    echo -----git commit complished-----
 ) ELSE IF "%1"=="-p" (
     echo -----git push-----
     git push
+    echo -----git push complished-----
 ) ELSE IF "%1"=="-n" (
     IF EXIST "%2" (
         echo %2| findstr : >nul && (
@@ -194,8 +199,7 @@ for /r "%source%" %%a in (*.md) do (
                     echo %%a renewed
                 )
         ) else (
-            copy "%blogtarget%\_posts\!filename!" "%%a"
-            echo %%a renewed
+            echo !filename! not exist in %blogtarget%, warning
         )
     )
 )
