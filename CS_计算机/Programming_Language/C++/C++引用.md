@@ -2,9 +2,10 @@
 title: C++引用
 mathjax: false
 categories:
-- CS_计算机
-- Programming_Language
-- C++
+  - CS_计算机
+  - Programming_Language
+  - C++
+abbrlink: 101de459
 ---
 
 # 引用

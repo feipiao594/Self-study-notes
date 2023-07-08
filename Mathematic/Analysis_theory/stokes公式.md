@@ -2,8 +2,9 @@
 title: stokes公式
 mathjax: true
 categories:
-- Mathematic
-- Analysis_theory
+  - Mathematic
+  - Analysis_theory
+abbrlink: 7fc7eed7
 ---
 
 # stokes公式

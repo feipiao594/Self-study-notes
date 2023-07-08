@@ -2,8 +2,9 @@
 title: n重积分转n次积分问题
 mathjax: true
 categories:
-- Mathematic
-- Analysis_theory
+  - Mathematic
+  - Analysis_theory
+abbrlink: 622309a6
 ---
 
 

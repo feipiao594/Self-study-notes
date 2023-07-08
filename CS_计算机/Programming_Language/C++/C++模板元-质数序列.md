@@ -2,9 +2,10 @@
 title: C++模板元-质数序列
 mathjax: false
 categories:
-- CS_计算机
-- Programming_Language
-- C++
+  - CS_计算机
+  - Programming_Language
+  - C++
+abbrlink: 3187765d
 ---
 
 

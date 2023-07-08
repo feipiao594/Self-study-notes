@@ -5,26 +5,51 @@ setlocal enabledelayedexpansion
 set "blogtarget=C:\daily\Blog\source"
 set "source=C:\daily\Self-study-notes"
 
-IF "%1"=="-s" (
+IF "%1"=="-m" (
+    echo -----move files-----
     call:func
+    echo -----move files finished-----
+    echo -----clean and generate-----
     cd "%blogtarget%\.."
     npx hexo clean
     cd "%blogtarget%\.."
     npx hexo generate
+    echo -----clean and generate finished-----
+    cd "%source%\.."
+    call %source%\qblog.bat -r
+) ELSE IF "%1"=="-r" (
+    echo -----renew files-----
+    call:renew
+    echo every files from %source% renewed
+    echo -----renew files finished-----
+) ELSE IF "%1"=="-s" (
+    echo -----quickly move, generate and server-----
+    cd "%source%\.."
+    call %source%\qblog.bat -m
+    echo -----hexo server-----
     cd "%blogtarget%\.."
     npx hexo server
 ) ELSE IF "%1"=="-d" (
-    call:func
+    echo -----quickly move, generate and deploy-----
+    cd "%source%\.."
+    call %source%\qblog.bat -m
+    echo -----hexo deploy-----
     cd "%blogtarget%\.."
-    npx hexo clean
+    npx hexo deploy
+) ELSE IF "%1"=="-ss" (
+    echo -----hexo server-----
     cd "%blogtarget%\.."
-    npx hexo generate
+    npx hexo server
+) ELSE IF "%1"=="-sd" (
+    echo -----hexo deploy-----
     cd "%blogtarget%\.."
     npx hexo deploy
 ) ELSE IF "%1"=="-c" (
+    echo -----git commit-----
     git add *
     git commit -m "%date:~3% %time:~0,5% Daily reading experience" 
 ) ELSE IF "%1"=="-p" (
+    echo -----git push-----
     git push
 ) ELSE IF "%1"=="-n" (
     IF EXIST "%2" (
@@ -57,7 +82,7 @@ IF "%1"=="-s" (
     echo "ERROR: %2 not exist."
     )
 ) ELSE (
-  echo "ERROR: Incorrect parameter list."
+  echo ERROR: Incorrect parameter list.
 )
 
 EXIT /B 0
@@ -139,6 +164,38 @@ for /l %%i in (0,1,%index%-1) do (
         if "!filesB[%%i]!" neq "NOTE:NOTHING" (
             echo %blogtarget%\images\!filesB[%%i]! deleted
             del %blogtarget%\images\"!filesB[%%i]!"
+        )
+    )
+)
+goto:eof
+
+:renew
+set index=0
+set flag=0
+for /f "tokens=* delims=" %%a in ('dir /b /a-d "%blogtarget%\_posts\*.md"') do (
+    set "filesA[!index!]=%%a"
+    set /a index+=1
+)
+for /r "%source%" %%a in (*.md) do (
+    set "filename=%%~nxa"
+    set "flag=0"
+    for /l %%i in (0,1,%index%-1) do (
+        if defined filesA[%%i] (
+            if /i "!filesA[%%i]!"=="!filename!" (
+                set "filesA[%%i]=NOTE:NOTHING"
+                set "flag=1"
+            )
+        )
+    )
+    echo %%a| findstr "README.md" >nul ||(
+        if "!flag!"=="1" (
+            fc "%%a" "%blogtarget%\_posts\!filename!" >nul ||(
+                    copy "%blogtarget%\_posts\!filename!" "%%a"
+                    echo %%a renewed
+                )
+        ) else (
+            copy "%blogtarget%\_posts\!filename!" "%%a"
+            echo %%a renewed
         )
     )
 )

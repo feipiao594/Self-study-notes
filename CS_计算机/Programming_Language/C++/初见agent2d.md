@@ -2,9 +2,10 @@
 title: 初见Agent2D
 mathjax: false
 categories:
-- CS_计算机
-- Programming_Language
-- C++
+  - CS_计算机
+  - Programming_Language
+  - C++
+abbrlink: 4174a027
 ---
 
 # 初见Agent2D

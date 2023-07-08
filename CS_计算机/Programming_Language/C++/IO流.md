@@ -2,9 +2,10 @@
 title: IO流
 mathjax: false
 categories:
-- CS_计算机
-- Programming_Language
-- C++
+  - CS_计算机
+  - Programming_Language
+  - C++
+abbrlink: fed4c017
 ---
 
 

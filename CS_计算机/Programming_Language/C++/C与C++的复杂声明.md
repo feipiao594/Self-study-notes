@@ -2,9 +2,10 @@
 title: C/C++的特别复杂的类型
 mathjax: false
 categories:
-- CS_计算机
-- Programming_Language
-- C++
+  - CS_计算机
+  - Programming_Language
+  - C++
+abbrlink: 8fb716fa
 ---
 
 # 那些C/C++的特别复杂的类型

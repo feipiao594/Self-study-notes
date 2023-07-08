@@ -2,9 +2,10 @@
 title: Rust_Chapter_2_通用编程概念
 mathjax: false
 categories:
-- CS_计算机
-- Programming_Language
-- Rust
+  - CS_计算机
+  - Programming_Language
+  - Rust
+abbrlink: 896c357a
 ---
 
 

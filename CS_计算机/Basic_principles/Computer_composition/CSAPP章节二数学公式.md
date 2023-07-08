@@ -2,9 +2,10 @@
 title: CSAPP章节二中的数学公式整理
 mathjax: true
 categories:
-- CS_计算机
-- Basic_principles
-- Computer_composition
+  - CS_计算机
+  - Basic_principles
+  - Computer_composition
+abbrlink: f1f78c10
 ---
 
 # CSAPP章节二中的数学公式整理
