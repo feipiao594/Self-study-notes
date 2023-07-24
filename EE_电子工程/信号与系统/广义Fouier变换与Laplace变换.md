@@ -2,8 +2,9 @@
 title: 广义Fouier变换与Laplace变换
 mathjax: false
 categories:
-- EE_电子工程
-- 信号与系统
+  - EE_电子工程
+  - 信号与系统
+abbrlink: f38b0ecb
 ---
 
 
