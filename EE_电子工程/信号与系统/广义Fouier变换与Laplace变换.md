@@ -58,44 +58,6 @@ $$
 
 
 
-看上去这是双边拉普拉斯变换等价的定义，在数学里似乎并不区分双边还是单边，单边拉普拉斯变换可以理解为$T_x$乘上一个Heaviside函数，这才是实际上单边拉普拉斯变换的定义，理由是在工程中，有这么一个结论
-$$\mathscr{L}\frac{\mathrm{d}f}{dx}=pF(p)-f'(0^-)$$
-既然有$0^-$的部分，那显然在0前是有定义的，那必然得进行双边的傅里叶变换，只有乘上Heaviside函数(严格来讲不叫这个函数，因为需要补上零点的定义，设函数为$u(x)$，额外添加$u(0)=1$，显然这个函数的导数也是Dirac函数)，再进行拉普拉斯变换才是最符合含义的
+看上去这是双边拉普拉斯变换等价的定义，在数学里似乎并不区分双边还是单边，单边就是把函数全部抠成定义域只在包含零点的正半轴的函数(因为似乎勒贝格积分可以让积分区域大于定义域，无定义的部分延拓为0)这样整体的定义就正确了
 
-在这样的定义下，上面这个工程结论也能够被解释
-
----
-
-**proof**.由于定义式后面一小部分都是换元，其实只要证明
-$$\begin{aligned}\langle\mathscr{F}\{f'ue^{-\xi x}\},\varphi\rangle&=\langle\mathscr{F}\{((fu)'-f\delta)e^{-\xi x}\},\varphi\rangle\\
-&=\langle\mathscr{F}\{(fu)'e^{-\xi x}\},\varphi\rangle-\langle\mathscr{F}\{f(0)\delta \},\varphi\rangle\\
-&=\langle\mathscr{F}\{(fu)'e^{-\xi x}\},\varphi\rangle-\langle f(0),\varphi\rangle
-\end{aligned}$$
-
-关于Fouier变换有微分性质如下
-$$\mathscr{F}\left(\mathrm{T}^{\left(n\right)}\right)=\left(2\pi\mathrm{is}\right)^\mathrm{n}\mathscr{F}\text{T}\\\left(\mathscr{F}\text{T}\right)^{\left(\mathrm{n}\right)}=\mathscr{F}\left(\left(-2\pi\text{it}\right)^\text{n}{ \mathrm{T}}\right)$$
-
-所以减号前的部分
-$$\begin{aligned}\langle\mathscr{F}\{(fu)'e^{-\xi x}\},\varphi\rangle
-&=\langle\mathscr{F}\{(fue^{-\xi x})'+\xi fue^{-\xi x}\},\varphi\rangle
-\\&=\langle\mathscr{F}\{(fue^{-\xi x})'\},\varphi\rangle+\xi\langle\mathscr{F}\{fue^{-\xi x}\},\varphi\rangle
-\\&=\langle 2\pi i x\mathscr{F}\{fue^{-\xi x}\},\varphi\rangle+\xi\langle\mathscr{F}\{fue^{-\xi x}\},\varphi\rangle
-\\&=\langle i\eta\mathscr{F}\{fue^{-\xi x}\},\varphi\rangle+\xi\langle\mathscr{F}\{fue^{-\xi x}\},\varphi\rangle
-\\&=\langle (i\eta+\xi)\mathscr{F}\{fue^{-\xi x}\},\varphi\rangle
-\end{aligned}$$
-
-总结可得
-$$\begin{aligned}
-\langle\mathscr{F}\{f'ue^{-\xi x}\},\varphi\rangle&=\langle(\xi+i\eta)\mathscr{F}\{fue^{-\xi x}\}-f(0),\varphi\rangle
-\end{aligned}$$
-
-故
-$$
-\mathscr{F}\{f'ue^{-\xi x}\}=(\xi+i\eta)\mathscr{F}\{fue^{-\xi x}\}-f(0)
-$$
-
-经过换元代换之后就能得到
-$$
-\left(\mathscr{L}f'u(\xi)\right)_{\eta}=pF(p)-f(0)
-$$
-**Q.E.D**
+> 我一开始以为广义函数乘以一个阶跃函数可以做到单边拉普拉斯变换的定义，但其实阶跃函数也不是光滑函数，根本没有乘法的定义的
