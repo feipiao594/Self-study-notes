@@ -32,3 +32,5 @@ print(torch.sum(a, dim=2))
 ```
 该部分的某次运行结果如下
 <img src="/images/Pytorch学习_1_图1.png" width="70%" height="70%">
+
+## 记录一些简单的函数
