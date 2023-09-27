@@ -3,6 +3,7 @@ title: Pytorch学习_1
 mathjax: true
 categories:
   - CS_计算机
+  - Programming_Language
   - Python
 abbrlink: 6c7f2ed0
 ---
@@ -34,3 +35,10 @@ print(torch.sum(a, dim=2))
 <img src="/images/Pytorch学习_1_图1.png" width="70%" height="70%">
 
 ## 记录一些简单的函数
+```python
+x = torch.arrange(12)
+# 生成一维行向量，从1到11 
+x.reshape(3,4)
+# 将矩阵变成3行4列的矩阵，即重排
+# -1代表无此列
+```
