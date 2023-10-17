@@ -1,81 +1,72 @@
 ---
-title: C++模板元-质数序列
+title: C++模板元-欧拉函数表
 mathjax: false
 categories:
   - CS_计算机
   - Programming_Language
   - C++
-abbrlink: 3187765d
+abbrlink: acc766b1
 ---
 
 
-# C++模板元-质数序列
-花了一点时间巩固自己的模板元编程，写了一个编译期质数数组生成器
+# C++模板元-欧拉函数表
+SAST 2023 C++组免试题之模板元编程部分
 <!--more-->
 
 ## 代码
 ```c++
 #include <iostream>
+#include <type_traits>
 
-template <bool b>
-struct bool_instant
+constexpr unsigned int eulerFunction(unsigned int n)
 {
-    constexpr static int value = b;
+    unsigned int ans = n;
+    for (unsigned int i = 2; i * i <= n; i++)
+        if (n % i == 0)
+        {
+            ans = ans / i * (i - 1);
+            while (n % i == 0)
+                n /= i;
+        }
+    if (n > 1)
+        ans = ans / n * (n - 1);
+    return ans;
+}
+
+template <unsigned int... pack>
+struct function2List
+{
+    constexpr static unsigned int length = sizeof...(pack);
+    constexpr static unsigned int value[sizeof...(pack)] = {eulerFunction(pack)...};
 };
 
-using true_instant = bool_instant<true>;
-using false_instant = bool_instant<false>;
-
-template <int... pack>
-struct intArrayPack
+constexpr unsigned int log2_func(unsigned int x)
 {
-    constexpr static int length = sizeof...(pack);
-    constexpr static int value[sizeof...(pack)] = {pack...};
-};
+    int ans = 0;
+    while (x >>= 1)
+        ++ans;
+    return ans;
+}
 
-template <int N, int current = 2, int flag = 0>
-struct isPrime : isPrime<N, current + 1, !!!(N % current)>{};
+template <unsigned int N, typename T, unsigned int temp, unsigned int MAX, unsigned int... pack>
+struct generatorList : generatorList<N, void, temp - 1, 2 * MAX, pack..., (pack + MAX)...> {};
 
-template <int N>
-struct isPrime<N, N, 0> : true_instant{};
+template <unsigned int N, unsigned int temp, unsigned int MAX, unsigned int... pack>
+struct generatorList<N, std::enable_if_t<(N >> (temp - 1)) % 2, void>, temp, MAX, pack...> : generatorList<N, void, temp - 1, 2 * MAX + 1, 1, (pack + 1)..., (pack + MAX + 1)...> {};
 
-template <int N, int current>
-struct isPrime<N, current, 1> : false_instant{};
+template <unsigned int N, unsigned int... pack>
+struct generatorList<N, void, 0, N, pack...> : function2List<pack...> {};
 
-template <int N, int current = 2, bool flag = false, int... pack>
-struct primePack : primePack<N, current + 1, isPrime<current>::value, pack...>{};
-
-template <int N, int current, int... pack>
-struct primePack<N, current, true, pack...> : primePack<N, current, false, current - 1, pack...>{};
-
-template <int N, int... pack>
-struct primePack<N, N, false, pack...> : intArrayPack<pack...>{};
+template <unsigned int N>
+struct EulerFunctionList : generatorList<N, void, log2_func(N) + 1, 0> {};
 
 int main()
 {
-    auto numlist = primePack<220>::value;
-    for (auto i = 0; i < primePack<220>::length; i++)
+    constexpr unsigned int N = 50000;
+    for (auto i = 0; i < EulerFunctionList<N>::length; i++)
     {
-        std::cout << numlist[i] << " ";
+        std::cout << EulerFunctionList<N>::value[i] << " ";
     }
     return 0;
 }
 ```
-
-## 讲解
-```c++
-primePack<220>::value
-```
-
-输出**小于**输入数字的所有质数组成的数组
-
-```c++
-primePack<220>::length
-```
-
-输出上述数组的长度
-
-
-重要的是`intArrayPack`这种通过形参包生成对应序列的方法，以及`primePack`这种通过`true`和`false`，利用模板特化进行`if`的模式
-
-本身代码在`MSVC for amd64`最大只能输出到227的质数，在之后就会报错，原因是**模板递归超过上限**，因而代码仍需要优化，但作为一个练手的，第一次写模板元编程，也挺不错的
