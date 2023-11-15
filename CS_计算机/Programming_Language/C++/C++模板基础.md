@@ -65,7 +65,7 @@ template <typename T> T       variable_tmpl = T(3.14);
 
 
 ## 模板形参
-在模板中，我们可以声明三种类型的形参，分别是：**非类型模板形参**、**类型模板形参**和**模板模板形参**
+在模板中，我们可以声明三种类型的形参，分别是：**非类型模板形参**、**类型模板形参**和**模板模板形参(C++17)**
 
 ```cpp
 // There are 3 kinds of template parameters:
@@ -111,18 +111,21 @@ template <typename T = int> struct TemplateWithDefaultArguments {};
 
 为了实例化一个模板，编译器需要知道所有的模板实参，但不是每个实参都要显式地指定。有时，编译器可以根据函数调用的实参来推断模板的实参，这一过程被称为**模板实参推导**。对每一个函数实参，编译器都尝试去推导对应的模板实参，如果所有的模板实参都能被推导出来，且推导结果不产生冲突，那么模板实参推导成功。C++17引入了类模板实参推导，可以通过类模板的构造函数来推导模板实参
 
+
 ```cpp
 template<typename T>
-void f(T s)
+void f(T s1, T s2)
 {
     std::cout << s << '\n';
 }
- 
-template void f<double>(double); // 实例化 f<double>(double)
-template void f<>(char);         // 实例化 f<char>(char)，推导出模板实参
-template void f(int);            // 实例化 f<int>(int)，推导出模板实参
 
-//如果不存在显式实例化，编译器会帮你完成隐式实例化
+int main(){
+  double pi_double = 3.14;
+  int pi_int = 3;
+  f(pi_double, pi_double); 
+  f(pi_int, pi_double); //error
+  f<double>(pi_int, pi_double);
+}
 ```
 
 ## 模板特化
@@ -135,7 +138,7 @@ template void f(int);            // 实例化 f<int>(int)，推导出模板实�
 
 ```cpp
 template<class T1, class T2, int I>
-class A {};             // 主模板
+class A;             // 主模板
  
 template<class T, int I>
 class A<T, T*, I> {};   // #1：部分特化，其中 T2 是指向 T1 的指针
@@ -182,7 +185,7 @@ SFINAE是“Substitution failure is not an error.”的缩写。意为替换失�
 整个实例化的过程具体的步骤是这样的，当一个实例化发生时，编译器：
 1. 进行名字查找，找到所有匹配该名字的模板
    - 如果是函数模板，可能会找到一个或多个重载
-   - 如果是类/变量模板，应找到唯一一个主模板，否则抛出重定义错误
+   - 如果是类/变量模板，应找到唯一一个主模板，否则报错:重定义
 2. 确定所有的模板实参，需要推导的，通过主模板来推导
    - 对函数模板，如果推导失败，那么这个模板从重载集中剔除
    - 对类/变量模板，如果推导失败，则抛出错误
@@ -213,6 +216,10 @@ struct is_void<void>{
 
 template <typename T>
 constexpr bool is_void_v = is_void<T>::value;
+
+
+//调用
+is_void_v<int>
 ```
 
 ### template is_reference<>
