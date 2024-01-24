@@ -2,8 +2,8 @@
 chcp 65001
 setlocal enabledelayedexpansion
 
-set "blogtarget=D:\Feipiao_daily\Blog\source"
-set "source=D:\Feipiao_daily\Self-study-notes"
+set "blogtarget=D:\workplace\Blog\source"
+set "source=D:\workplace\Self-study-notes"
 
 IF "%1"=="-m" (
     echo -----move files-----
