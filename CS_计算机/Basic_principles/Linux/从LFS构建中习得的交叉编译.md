@@ -37,7 +37,7 @@ abbrlink: c858dee6
 例如x86_64-w64-mingw32-gcc即指target为x86_64的windows的编译器
 
 ### 上面术语与编译器的关系
-搜索gcc官网，进入其中的Installation部分(https://gcc.gnu.org/install/)，选择Configuration，会看到这一步构建有相当多的参数，其中有一个部分`Host, Build and Target specification`具体阐释了上方所指的三个术语。没错，在gcc自身被编译之时你就可以选择这三个编译参数，就能得到相对应的编译器，而gcc几乎对现代所有的平台都进行了适配
+搜索gcc官网，进入其中的[Installation部分](https://gcc.gnu.org/install/)，选择Configuration，会看到这一步构建有相当多的参数，其中有一个部分`Host, Build and Target specification`具体阐释了上方所指的三个术语。没错，在gcc自身被编译之时你就可以选择这三个编译参数，就能得到相对应的编译器，而gcc几乎对现代所有的平台都进行了适配
 
 > **NOTE**: 这里不对GNU构建系统进行进一步的阐释，只是声明可以从gcc的源代码构建出其支持的交叉编译的平台
 
@@ -83,20 +83,40 @@ abbrlink: c858dee6
 
 <img src="/images/从LFS构建中习得的交叉编译_图1.png" width="100%" height="100%">
 
-### x86_64 linux -> windows
+### Linux -> Windows (x86_64)
 由于windows下从源码编译交叉工具链必然遭遇极其麻烦的库，链接等问题，我们略过编译构建的部分，直接使用已有的二进制gcc
 
 ```bash
 # archlinux:
 $ sudo pacman -S mingw-w64-toolchain 
-x86_64-w64-mingw32-gcc -o hello.exe hello.c
+$ x86_64-w64-mingw32-gcc -o hello.exe hello.c
 ```
 
 成功获得hello.exe，传到windows中，正常运行！
 
-### x86_64 linux -> aarch64
+对于Raspberry Pi这样的也是一致的，我们使用如下的命令，可以得到运行在树莓派上的程序(需要非常注意依赖的版本问题，如glibc，相对来说更加推荐在容器中进行编译)
+```bash
+# archlinux:
+$ paru arm-none-linux-gnu-gcc 
+$ arm-none-linux-gnu-gcc -o hello hello.c
+```
 
-#### stm32
+### Linux(x86_64) -> Stm32
+针对这个部分我们略微多提一点，相对来说这个比较特殊，在我周围的嵌入式开发者使用两种工具，一是使用keil/stm32cubeIDE这类闭源的集成开发环境；二是使用arm-none-eabi-gcc。而作为一个开源爱好者，我们更希望使用gcc这样的开源编译器。而且最好了解arm-none-eabi-gcc这个工具的构建过程(当然你也可以像上面那样直接包管理下载交叉编译器)
 
-#### Raspberry Pi
+一开始考虑这个问题的时候，我遇到了不小的障碍，原因是arm-none-eabi-gcc可以找到的官方资料是来源于arm官网而非来自于gcc官网，而写过嵌入式开发的朋友们都知道stm32的makefile里编译时有极其丰富编译参数，虽然不需要链接到标准库，不过链接到其他的库反而使得这个问题变得更加复杂
 
+通过互联网搜索与询问学长们，我在一开始尝试去arm官网寻找答案
+https://developer.arm.com/downloads/-/gnu-rm
+
+我发现了网上给出最多次数的这个页面是被废弃的页面，而链接到的新页面确实给出了一些source code，但似乎由于其使用了特殊的构建工具(ABE)，且教程的陈旧，导致了我无法进一步从源码构建
+
+最终我在下面这个问题中找到了构建arm-none-eabi-gcc的解决方案，关于完整的探索过程我们按下不表，详情留到下一篇文档中继续讨论
+
+https://stackoverflow.com/questions/72440601/arm-none-eabi-toolchain-compile-from-source
+
+在StackOverflow的这个问题的最后一条回答中Peter Frost给出了[脚本](https://gist.github.com/badcf00d/2f6054441375d9c94896aaa8e878ab4f)与使用说明
+
+> **NOTE**：需要按照回答中的方法更改`nano.specs`
+
+紧接着就可以使用编译得到编译器编译stm32项目了，利用openocd烧录进入stm32，完美运行
