@@ -7,7 +7,7 @@
 >注意，博客名中尽量不要含有空格等字符
 ## Python提交脚本使用方法
 **English:**
-Usage: qblog [-n | -f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h]
+Usage: qblog [-f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h | -g]
 Options:
   -n: draft a new posts.
   -f: change config.
@@ -21,9 +21,10 @@ Options:
   -p: git commit and push.
   -C: check categorys.
   -h: help.
+  -g <file>: change file header.
 
 **Chinese:**
-使用方法: qblog [-n | -f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h]
+使用方法: qblog [-f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h | -g]
 选项：
   -n: 新建一篇草稿。
   -f: 修改配置文件。
@@ -37,6 +38,7 @@ Options:
   -p: Git 提交并推送。
   -C: 检查分类。
   -h: 展示该帮助文档。
+  -g <file>: 改变文件的信息头
 
 ### config.yaml
 共有三个词条，其中 `log_state` 为日志等级

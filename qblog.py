@@ -38,8 +38,8 @@ def debug(str):
 def get_time():
     return time.strftime("[%H:%M]", time.localtime())
 
-def change_file_category(file):
-    change("change file category")
+def change_file_header(file):
+    change("change file header")
     try:
         with open(file, 'r') as f:
             lines = f.readlines()
@@ -88,6 +88,7 @@ def change_file_category(file):
         with open(file, 'w') as f:
             f.writelines(new_lines)
         # Add category section
+        success(f"file {file} header added.")
         return
 
 
@@ -105,7 +106,7 @@ def change_file_category(file):
     with open(file, 'w') as f:
         f.writelines(new_lines)
 
-    success(f"File {file} category updated.")
+    success(f" {file} categories updated.")
     return 
 
 def check_categorys():
@@ -383,7 +384,7 @@ elif command == "-g":
     if file is None:
         error("`-g` file not specified.")
         sys.exit(6)
-    change_file_category(file)
+    change_file_header(file)
 elif command == "-h":
     print("Usage: qblog [-f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h | -g <file>]")
     print("Options:")
@@ -398,7 +399,7 @@ elif command == "-h":
     print("  -p: git commit and push.")
     print("  -C: check categorys.")
     print("  -h: help.")
-    print("  -g <file>: change file category.")
+    print("  -g <file>: change file header.")
 else:
     error("incorrect parameter list.")
 
