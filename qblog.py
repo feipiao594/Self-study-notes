@@ -10,8 +10,8 @@ import re
 from colorama import Fore, Style
 
 # Config paths
-blog_target = None # r'/home/feipiao/Workplace/Blog/BlogSrc'
-source = None # r'/home/feipiao/Workplace/Blog/Self-study-notes'
+blog_target = None
+source = None
 log_state = 1
 
 def error(str):
@@ -38,15 +38,74 @@ def debug(str):
 def get_time():
     return time.strftime("[%H:%M]", time.localtime())
 
-def make_new_posts(): #Todo
-    return
-    change("make new posts")
-    title = input("Enter the title: ")
-    print("select the category with number:")
+def change_file_category(file):
+    change("change file category")
+    try:
+        with open(file, 'r') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        error(f"File {file} not found.")
+        sys.exit(4)
+    except Exception as e:
+        error(f"Error reading file {file}: {e}")
+        sys.exit(5)
 
-    success("make new posts finished")
+    start_idx = None
+    category_idx = None
+    end_idx = None
+    for i, line in enumerate(lines):
+        if line.strip() == 'categories:':
+            if start_idx is not None:
+                category_idx = i
+        if line.strip() == '---':
+            if start_idx is None:
+                start_idx = i
+            else:
+                if category_idx is not None:
+                    end_idx = i
+                break
 
-def change_file_category(): #Todo archi
+    relative_path = os.path.relpath(os.path.dirname(file), source)
+    categories = relative_path.split(os.sep)
+
+    debug(f"relative path: {relative_path}")
+    debug(f"change to categories: {categories}")
+
+    if end_idx is None:
+        change(f"{file} does not have a valid category section.")
+        change(f"select a header in {file}.")
+        new_lines = []
+        new_lines.append('---\n')
+        file_name = os.path.splitext(os.path.basename(file))[0]
+        new_lines.append(f'title: {file_name}\n')
+        new_lines.append(f'mathjax: false\n')
+        new_lines.append('categories:\n')
+        for category in categories:
+            new_lines.append(f'  - {category}\n')
+        new_lines.append(f'date: {time.strftime("%Y-%m-%d", time.localtime())}\n')
+        new_lines.append('---\n')
+        new_lines.extend(lines[:])
+        with open(file, 'w') as f:
+            f.writelines(new_lines)
+        # Add category section
+        return
+
+
+    new_lines = lines[:category_idx+1]
+    for category in categories:
+        new_lines.append(f"  - {category}\n")
+    
+    for i in range(category_idx+1, end_idx):
+        if lines[i].strip().startswith('- '):
+            continue
+        new_lines.extend(lines[i:])
+        break
+    
+
+    with open(file, 'w') as f:
+        f.writelines(new_lines)
+
+    success(f"File {file} category updated.")
     return 
 
 def check_categorys():
@@ -201,7 +260,7 @@ def clean_and_generate():
 
 def graceful_shutdown(signum, frame):
     print()
-    change("shutting down gracefully...")
+    info("shutting down gracefully...")
     sys.exit(0)
 
 def start_server():
@@ -239,8 +298,9 @@ def read_config():
     global log_state
     global blog_target
     global source
+    config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
     try:
-        with open('config.yaml', 'r') as f:
+        with open(config_path, 'r') as f:
             lines = f.readlines()
             if not lines[0].startswith('log_state:'):
                 error("The first line of config.yaml must be log_state. Use `qblog -f` to reset the config.")
@@ -318,14 +378,15 @@ elif command == "-p":
     git_push()
 elif command == "-C":
     check_categorys()
-elif command == "-n":
-    make_new_posts()
 elif command == "-g":
-    change_file_category()
+    file = sys.argv[2] if len(sys.argv) > 2 else None
+    if file is None:
+        error("`-g` file not specified.")
+        sys.exit(6)
+    change_file_category(file)
 elif command == "-h":
-    print("Usage: qblog [-n | -f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h]")
+    print("Usage: qblog [-f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h | -g <file>]")
     print("Options:")
-    print("  -n: draft a new posts.")
     print("  -f: change config.")
     print("  -m: move files.")
     print("  -r: renew files.")
@@ -337,6 +398,7 @@ elif command == "-h":
     print("  -p: git commit and push.")
     print("  -C: check categorys.")
     print("  -h: help.")
+    print("  -g <file>: change file category.")
 else:
     error("incorrect parameter list.")
 
