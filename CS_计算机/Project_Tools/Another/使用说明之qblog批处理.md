@@ -5,12 +5,15 @@ categories:
   - CS_计算机
   - Project_Tools
   - Another
+date: 2023-09-26
 abbrlink: 64b84f95
 ---
 # 使用说明之qblog批处理
 在整个博客构建中，我使用了批处理以方便在保留文件目录的情况下上传文件，这篇文档在仓库里是以`README.md`显示的，在这里再发一遍，写成一篇blog
 
 <!--more-->
+
+> 注意：该批处理文件已处于**DEPRECATED**状态
 
 ## 放置并修改批处理文件
 将`qblog.bat`置于note文件夹下

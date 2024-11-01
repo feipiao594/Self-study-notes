@@ -5,6 +5,7 @@ categories:
   - CS_计算机
   - Programming_Language
   - Rust
+date: 2023-05-01
 abbrlink: 2d38ec93
 ---
 
@@ -140,13 +141,13 @@ Rust中内建了4种基础的标量类型：整型、浮点数、布尔值与字
 **Rust中的整数类型**
 
 
-|长度|有符号|无符号|
-|---|---|---|
-|8-bit|i8|u8|
-|16-bit|i16|u16|
-|32-bit|i32|u32|
-|64-bit|i64|u64|
-|arch|isize|usize|
+| 长度   | 有符号 | 无符号 |
+| ------ | ------ | ------ |
+| 8-bit  | i8     | u8     |
+| 16-bit | i16    | u16    |
+| 32-bit | i32    | u32    |
+| 64-bit | i64    | u64    |
+| arch   | isize  | usize  |
 
 
 最后一行的`isize`和`usize`的长度取决于程序运行的目标平台，在64位上就64位，32位上就32位
@@ -157,13 +158,13 @@ Rust中内建了4种基础的标量类型：整型、浮点数、布尔值与字
 **Rust中的整型字面量**
 
 
-|整型字面量|示例|
-|---|---|
-|Decimal|98_222|
-|Hex|0xff|
-|Octal|0o77|
-|Binary|0b1111_0000|
-|Byte(u8 only)|b'A'|
+| 整型字面量    | 示例        |
+| ------------- | ----------- |
+| Decimal       | 98_222      |
+| Hex           | 0xff        |
+| Octal         | 0o77        |
+| Binary        | 0b1111_0000 |
+| Byte(u8 only) | b'A'        |
 
 
 关于整型的类型溢出，在debug版本下会直接被Rust检测到，**弹出panic并结束程序**，在release版本下会形成经典的C/C++中的overflowing，这本书中称为**二进制补码环绕**，如果希望显示使用环绕，可以使用标准库中的类型`Wrapping`

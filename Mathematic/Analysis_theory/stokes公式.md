@@ -4,6 +4,7 @@ mathjax: true
 categories:
   - Mathematic
   - Analysis_theory
+date: 2023-02-02
 abbrlink: 7fc7eed7
 ---
 
