@@ -1,5 +1,6 @@
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import filecmp
@@ -9,8 +10,8 @@ import re
 from colorama import Fore, Style
 
 # Config paths
-blog_target = r'/home/feipiao/Workplace/Blog/BlogSrc'
-source = r'/home/feipiao/Workplace/Blog/Self-study-notes'
+blog_target = None # r'/home/feipiao/Workplace/Blog/BlogSrc'
+source = None # r'/home/feipiao/Workplace/Blog/Self-study-notes'
 log_state = 1
 
 def error(str):
@@ -36,6 +37,17 @@ def debug(str):
 
 def get_time():
     return time.strftime("[%H:%M]", time.localtime())
+
+def make_new_posts(): #Todo
+    return
+    change("make new posts")
+    title = input("Enter the title: ")
+    print("select the category with number:")
+
+    success("make new posts finished")
+
+def change_file_category(): #Todo archi
+    return 
 
 def check_categorys():
     src_md_files = list_md_files(source)
@@ -134,16 +146,18 @@ def move_files():
     
     for root, _, files in os.walk(image_source):
         for file in files:
-            src_path = os.path.join(root, file)
+            src_path = os.path.relpath(os.path.join(root, file), source)
             dest_path = os.path.join(image_target, file)
             
             if os.path.exists(dest_path):
                 if not filecmp.cmp(dest_path, src_path, shallow=False):
                     shutil.copy2(src_path, dest_path)
-                    info(f"{src_path} copied to {dest_path}")
+                    change(f"{src_path} is updated to destnation now")
+                else: 
+                    debug(f"{src_path} is already up to date")
             else:
                 shutil.copy2(src_path, dest_path)
-                info(f"{src_path} copied to {dest_path}")
+                change(f"{src_path} copied to destnation path")
     
     # Remove extra image files in blog_target/source/_images
     for root, _, files in os.walk(image_target):
@@ -152,7 +166,7 @@ def move_files():
             dest_path = os.path.join(root, file)
             if not os.path.exists(src_path):
                 os.remove(dest_path)
-                info(f"{dest_path} removed")
+                change(f"{dest_path} removed")
     
     success("move files finished")
 
@@ -169,14 +183,14 @@ def renew_files():
                         src_path = os.path.join(src_root, file)
                         break
                 if os.path.exists(src_path):
+                    debug(f"{file} have same name with {src_path}")
                     # Compare files, if different, copy
                     if not filecmp.cmp(dest_path, src_path, shallow=False):
                         shutil.copy2(dest_path, src_path)
-                        print(f"{dest_path} copied to {src_path}")
-                else:
-                    shutil.copy2(dest_path, src_path)
-                    print(f"{dest_path} copied to {src_path}")
-    print(Fore.BLUE + f"[{time.localtime().tm_min}:]" + Style.RESET_ALL + " qblog: renew files finished")
+                        change(f"{file} is renewed now")
+                    else:
+                        debug(f"{file} is already parallel with source")
+    info("renew files finished")
 
 def clean_and_generate():
     info("clean and generate")
@@ -185,10 +199,25 @@ def clean_and_generate():
     subprocess.run(['npx', 'hexo', 'generate'])
     success("clean and generate finished")
 
+def graceful_shutdown(signum, frame):
+    print()
+    change("shutting down gracefully...")
+    sys.exit(0)
+
 def start_server():
-    info("hexo server")
+    # 注册信号处理器
+    info("hexo server start.")
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+
     os.chdir(os.path.join(blog_target, '.'))
-    subprocess.run(['npx', 'hexo', 'server'])
+    try:
+        subprocess.run(['npx', 'hexo', 'server'])
+    except KeyboardInterrupt:
+        pass
+    finally:
+        success("hexo server closed.")
+        sys.exit(0)
 
 def deploy():
     info("hexo deploy")
@@ -206,12 +235,60 @@ def git_push():
     subprocess.run(['git', 'push'])
     success("git push completed")
 
+def read_config():
+    global log_state
+    global blog_target
+    global source
+    try:
+        with open('config.yaml', 'r') as f:
+            lines = f.readlines()
+            if not lines[0].startswith('log_state:'):
+                error("The first line of config.yaml must be log_state. Use `qblog -f` to reset the config.")
+                sys.exit(3)
+            for line in lines:
+                if line.startswith('blog_target:'):
+                    blog_target = line.split()[1]
+                    debug(f"blog_target: {blog_target}")
+                elif line.startswith('source:'):
+                    source = line.split()[1]
+                    debug(f"source: {source}")
+                elif line.startswith('log_state:'):
+                    log_state = int(line.split()[1])
+                    debug(f"log_state: {log_state}")
+        success("read config completed")
+    except FileNotFoundError:
+        error("config.yaml file not found, please use `qblog -f` to set a config.")
+        sys.exit(1)
+    except Exception as e:
+        error(f"error reading config.yaml: {e}")
+        sys.exit(2)
+
+def set_config():
+    log_state = int(input("Enter the log state (0 for debug, 1 for info, 2 for warning, 3 and more or other): "))
+    blog_target = input("Enter the blog target path: ")
+    source = input("Enter the source path: ")
+
+    with open('config.yaml', 'w') as f:
+        f.write(f"log_state: {log_state}\n")
+        f.write(f"blog_target: {blog_target}\n")
+        f.write(f"source: {source}\n")
+
+    success("set config completed")
+
 # Get command-line argument
 command = sys.argv[1] if len(sys.argv) > 1 else None
 
+if command != "-f" and command != "-h":
+    read_config()
+
 # Command control flow
 if command == "-m":
-    move_files()
+    if check_categorys():
+        move_files()
+    else:
+        error("unmatch categorys, '-s' terminate.")
+elif command == "-f":
+    set_config()
 elif command == "-r":
     renew_files()
 elif command == "-s":
@@ -221,7 +298,7 @@ elif command == "-s":
         renew_files()
         start_server()
     else:
-        print(Fore.RED + "[ERROR]" + Style.RESET_ALL + " qblog: Unmatch categorys, '-s' terminate.")
+        error("unmatch categorys, '-s' terminate.")
 elif command == "-d":
     if check_categorys():
         move_files()
@@ -229,7 +306,7 @@ elif command == "-d":
         renew_files()
         deploy()
     else:
-        print(Fore.RED + "[ERROR]" + Style.RESET_ALL + " qblog: Unmatch categorys, '-d' terminate.")
+        error("unmatch categorys, '-d' terminate.")
 elif command == "-Ss":
     start_server()
 elif command == "-Sd":
@@ -241,7 +318,26 @@ elif command == "-p":
     git_push()
 elif command == "-C":
     check_categorys()
+elif command == "-n":
+    make_new_posts()
+elif command == "-g":
+    change_file_category()
+elif command == "-h":
+    print("Usage: qblog [-n | -f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h]")
+    print("Options:")
+    print("  -n: draft a new posts.")
+    print("  -f: change config.")
+    print("  -m: move files.")
+    print("  -r: renew files.")
+    print("  -s: move files, clean and generate, renew files, start server.")
+    print("  -d: move files, clean and generate, renew files, deploy.")
+    print("  -Ss: single start server.")
+    print("  -Sd: single deploy.")
+    print("  -c: clean and generate.")
+    print("  -p: git commit and push.")
+    print("  -C: check categorys.")
+    print("  -h: help.")
 else:
-    print(Fore.RED + "[ERROR]" + Style.RESET_ALL + " qblog: Incorrect parameter list.")
+    error("incorrect parameter list.")
 
 

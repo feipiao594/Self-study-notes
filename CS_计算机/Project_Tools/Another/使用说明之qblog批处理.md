@@ -13,7 +13,7 @@ abbrlink: 64b84f95
 
 <!--more-->
 
-> 注意：该批处理文件已处于**DEPRECATED**状态
+> 注意：该批处理文件已处于**DEPRECATED**状态，新的python脚本已在使用
 
 ## 放置并修改批处理文件
 将`qblog.bat`置于note文件夹下

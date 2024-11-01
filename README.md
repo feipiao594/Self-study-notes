@@ -2,15 +2,54 @@
 这里是博客同步更新的GitHub仓库
 博客链接：https://feipiao594.github.io
 
-我当前一共有两个文件夹，一个存放的是这个仓库，下面称为**note文件夹**，另一个是博客的，下面称为**blog文件夹**，由于每次写note都要手动复制，让我这个懒人很不舒服，于是写了个批处理文件，即在仓库中的`qblog.bat`
+我当前一共有两个文件夹，一个存放的是这个仓库，下面称为**note文件夹**，另一个是博客的，下面称为**blog文件夹**，由于每次写note都要手动复制，让我这个懒人很不舒服，于是写了个处理脚本，即在仓库中的`qblog`
 
 >注意，博客名中尽量不要含有空格等字符
 ## Python提交脚本使用方法
-等待完成
+**English:**
+Usage: qblog [-n | -f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h]
+Options:
+  -n: draft a new posts.
+  -f: change config.
+  -m: move files.
+  -r: renew files.
+  -s: move files, clean and generate, renew files, start server.
+  -d: move files, clean and generate, renew files, deploy.
+  -Ss: single start server.
+  -Sd: single deploy.
+  -c: clean and generate.
+  -p: git commit and push.
+  -C: check categorys.
+  -h: help.
+
+**Chinese:**
+使用方法: qblog [-n | -f | -m | -r | -s | -d | -Ss | -Sd | -c | -p | -C | -h]
+选项：
+  -n: 新建一篇草稿。
+  -f: 修改配置文件。
+  -m: 移动文件。
+  -r: 更新文件。
+  -s: 移动文件、清理并生成、更新文件、启动服务器。
+  -d: 移动文件、清理并生成、更新文件、部署。
+  -Ss: 单独启动服务器。
+  -Sd: 单独部署。
+  -c: 清理并生成。
+  -p: Git 提交并推送。
+  -C: 检查分类。
+  -h: 展示该帮助文档。
+
+### config.yaml
+共有三个词条，其中 `log_state` 为日志等级
+- log_state: 1
+- blog_target: your/blog/src
+- source: your/notesrc
+
+在你使用 `qblog` 前必须先用 `qblog -f` 生成配置文件
+
 
 ## 批处理使用方法(DEPRECATED)
 
-> WARNING: 该批处理已处于废弃状态
+> WARNING: 该批处理已处于废弃状态, 仍然保留在 `CS_计算机/Project_Tools/Another/qblog.bat`
 
 ### 放置并修改批处理文件
 将`qblog.bat`置于note文件夹下
