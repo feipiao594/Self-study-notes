@@ -82,7 +82,7 @@ def change_file_header(file):
         new_lines.append('categories:\n')
         for category in categories:
             new_lines.append(f'  - {category}\n')
-        new_lines.append(f'date: {time.strftime("%Y-%m-%d", time.localtime())}\n')
+        new_lines.append(f'date: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}\n')
         new_lines.append('---\n')
         new_lines.extend(lines[:])
         with open(file, 'w') as f:
