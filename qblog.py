@@ -4,6 +4,7 @@ import signal
 import subprocess
 import sys
 import filecmp
+import termios
 import time
 import re
 
@@ -13,6 +14,8 @@ from colorama import Fore, Style
 blog_target = None
 source = None
 log_state = 1
+
+original_stdin = termios.tcgetattr(sys.stdin)
 
 def error(str):
     print(Fore.RED + get_time() + "[Error]" + Style.RESET_ALL + f" qblog: {str}")
@@ -261,8 +264,9 @@ def clean_and_generate():
 
 def graceful_shutdown(signum, frame):
     print()
+    info("restore terminal settings.")
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, original_stdin)
     info("shutting down gracefully...")
-    sys.exit(0)
 
 def start_server():
     # 注册信号处理器
@@ -276,8 +280,7 @@ def start_server():
     except KeyboardInterrupt:
         pass
     finally:
-        success("hexo server closed.")
-        sys.exit(0)
+        success("hexo server closing.")
 
 def deploy():
     info("hexo deploy")
