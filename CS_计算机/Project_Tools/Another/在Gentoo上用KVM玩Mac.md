@@ -43,6 +43,7 @@ $ sudo emerge --ask --verbose
 
 > **NOTE**: net-analyzer/openbsd-netcat 该包需要解决一些依赖问题，因为其和原有的 netcat 包不能共存，方法是 unemerge 原来的 netcat，参考 emerge 的报错即可
 
+顺带一提，关于 ArchLinux 在被关闭的 pr 中有需要安装包的相关说明 (https://github.com/kholia/OSX-KVM/pull/232/files)
 
 ```bash
 cd ~
@@ -99,3 +100,5 @@ virsh --connect qemu:///system define macOS.xml
 
 > **NOTE**: 由于我的独立显卡属于N卡，显卡直通缺少驱动，无法进行，所以这边我们就此略过
 
+**这是我已经安装完成的 Mac**
+<img src="/images/在Gentoo上用KVM玩Mac_图2.png" width="100%" height="100%">
