@@ -26,7 +26,7 @@ date: 2024-11-19 10:32:33
 安装你所需的软件，此处略去了对 kernel 的要求，详情请自行查询 Gentoo Wiki
 
 ```bash
-$ sudo emerge --ask --verbose 
+sudo emerge --ask --verbose 
         net-analyzer/openbsd-netcat \ 
         app-emulation/libguestfs \
         app-emulation/virt-manager \
