@@ -102,3 +102,8 @@ virsh --connect qemu:///system define macOS.xml
 
 **这是我已经安装完成的 Mac**
 <img src="/images/在Gentoo上用KVM玩Mac_图2.png" width="100%" height="100%">
+
+## 一键安装
+参考项目 ultimate-macOS-KVM: https://github.com/Coopydood/ultimate-macOS-KVM
+
+> 注意该项目实测可以安装较新版本的 MacOS
