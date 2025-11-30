@@ -5,6 +5,7 @@ categories:
   - CS_计算机
   - Project_Tools
   - Git
+abbrlink: 5ef186e7
 date: 2025-11-30 15:34:50
 ---
 
@@ -25,12 +26,12 @@ Username for 'https://github.com':
 
 ## 解决问题的开篇
 实质上这个问题是好几个事情的叠加，我此次滚包距离上次滚包已经是有两个月之久了，最后变动的包一共有 684 项，总体编译并更新时长超过了 11 个小时。
-首先我们知道，Github 其实在很久之前就不允许使用用户名+密码这种比较弱的身份验证方式登陆了，你必须在 Github 上创建 PAT(personal access token) 来验证你的身份，具体的创建方式在官方文档里有提供(https://githubdocs.cn/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+首先我们知道，Github 其实在很久之前就不允许使用用户名+密码这种比较弱的身份验证方式登陆了，你必须在 Github 上创建 PAT(personal access token) 来验证你的身份，具体的创建方式在官方文档里有提供
+https://githubdocs.cn/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
 
 注意上述方式只支持 https 的登陆，ssh 不能使用 PAT 进行登陆，而 Github 也给出了这个 PAT 具体是怎么使用的
 
 <img src="/images/Github登陆与验证的故事_图1.png" width="100%" height="100%">
-![alt text](image.png)
 
 可以看到，默认的 Git 只支持使用 username 和 password 进行认证。让我们来细细讨论一下 git 的认证模式
 
@@ -103,7 +104,6 @@ VSCODE_GIT_ASKPASS_MAIN=/opt/vscode/resources/app/extensions/git/dist/askpass-ma
 描述他们的[官方文档](https://git-scm.com/docs/gitcredentials)如下:
 
 <img src="/images/Github登陆与验证的故事_图3.png" width="100%" height="100%">
-![alt text](image-1.png)
 
 他们这几个环境变量其实是一个朴素的 credential.helper，单纯只是一个 cli 进程，git 从标准 IO 传递并获取他们存取的用户名密码
 
@@ -120,7 +120,6 @@ env -u GIT_ASKPASS git clone <your-repo-https-url>
 可以看到啊，在 github 的 settings - application 里有相关的允许的认证客户端的信息，vscode 插件的认证次数要远多于 gcm (我这边按照 Recently Used 排序了)
 
 <img src="/images/Github登陆与验证的故事_图4.png" width="100%" height="100%">
-![alt text](image-2.png)
 
 但 GCM 这个东西确实存在啊。其实它是绑定在 windows 的 git 安装包的，所以 windows 用户其实一上来就使用了最现代的认证模式，它会拉起一个浏览器页面让你登陆
 所以在 windows 上执行刚刚的我返回 `cache` 的指令，你们大概率会得到 `manager-core` 或者 `manager`
@@ -151,6 +150,5 @@ https://git-scm.com/book/en/v2/Git-Internals-Transfer-Protocols
 一搜发现 dumb 还真有哑的意思，而且排在愚蠢前，那到底是谁比较愚蠢自不必多说了 qwq
 
 <img src="/images/Github登陆与验证的故事_图5.png" width="100%" height="100%">
-![alt text](image-3.png)
 
 我还是觉得这是中国人的含蓄
