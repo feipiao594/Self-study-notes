@@ -99,54 +99,7 @@ categories:
 
 顺带一提，`.gitignore`中存放了未提交的本地加密博客文件夹名字，对于这个文件夹，其中新建文件需要在原来的文件夹下创建，并且手动搬运到这个未提交的文件夹中
 
+$Smooth = \text{max\_iter} + 1 - \frac{\log(\log(z_n)/\log(R))}{\log(2)}$
 
-错对对错对错
-DACCC
+$1 - \frac{\log(\log(z_n)/\log(R))}{\log(2)} > 0$
 
-```c++
-/* 甲机串行发送 */
-#include <reg51.h>
-#define uchar unsigned char
-#define uint unsigned int
-void main() { 
-    uchar temp=0;
-    TMOD=0X20; //设置定时器 T1 为方式 2
-    TH1=0xfa; //波特率 4800
-    TL1=0xfa;
-    SCON=0x40; //方式 1 只发送，不接收
-    PCON=0x00;
-    TR1=1; //启动 T1
-    P1=0xff; //P1 口为输入
-    While(1) { 
-        temp=P1; //读开关状态
-        SBUF=temp; //数据送串行口发送
-        while(TI==0); //如果 TI=0,未发送完，循环等待
-        TI=0; //已发送完，再把 TI 清 0
-    }
-}
-/* 乙机串行接收 */
-#include <reg51.h>
-#define uchar unsigned char
-#define uint unsigned int
-void main() {
-    uchar temp=0;
-    TMOD=0X20; //设置定时器 T1 为方式 2
-    TH1=0xfa; //波特率 4800
-    TL1=0xfa;
-    SCON=0x50; //方式 1，可发送接收
-    PCON=0x00; //波特率不加倍
-    TR1=1;启动 T1
-    ES=1;
-    EA=1; //开中断
-    while(1);
-}
-void receive(void) interrupt 4 {
-    while(RI==1) {
-        RI=0
-        temp=SBUF; //串行口接收
-        P1=temp;
-        while(TI==1);
-        TI=0;
-    }
-}
-```
