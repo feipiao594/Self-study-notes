@@ -14,8 +14,6 @@ date: 2026-02-20 01:52:48
 
 <!--more-->
 
-> 主要脉络: GPU -> DRM & libdrm -> Mesa3D(ok) -> UI framework -> Application
-
 ---
 
 ## 图形接口 OpenGL
@@ -114,13 +112,33 @@ mesa3d 架构图，对外暴露动态链接库
 ---
 
 ## EGL
-TODO
+在 Linux 现代图形栈中，EGL 是连接图形 API（OpenGL/GLES）与底层窗口系统（Wayland/X11）的唯一纽带。
+
+首先我们介绍一下 Wayland：在 Linux 图形栈中，Wayland 它是一套目前最现代的现代图形显示协议。它定义了客户端如何与合成器(Compositor/Server，如 Hyprland)进行对话。应用程序，在wayland 语境下就是客户端，他们通过递交一个被称为 framebuffer 的渲染结果(可以理解为用户这边的绘制的画布)，交给合成器，合成器将统合所有客户端的结果，绘制桌面等其余的东西，合成一个完整的图像交给显示器显示
+
+EGL 是怎么做到和平台通信的呢？对于 wayland，EGL 会通过链接 libwayland-client.so，利用其底层协议与 Wayland Server 通信。对于 Wayland 而言：
+
+- 获取 Surface：Wayland Client 需要向 Server 申请一个 wl_surface。
+
+- fd 传递：EGL 会通过 dma_buf 机制，把包含渲染结果的内存文件描述符（fd）发给 Server。
+
+- 零拷贝：Server 拿到 fd 后，直接将其作为纹理合成到屏幕上，整个过程数据无需在 CPU 和 GPU 之间来回搬运。
+
+其实如果你只是调用纯 CPU 的方式，你也可以使用一些方法递交一个数组来当作渲染的结果递交给合成器，但是 EGL 规范化了这一个过程。不管是什么，应用程序客户端想要显示页面，必须提交 framebuffer，由于 EGL 实际上是厂商实现的用户态驱动，它内部可以创建具有特殊格式的 framebuffer，要想使用这个 framebuffer，当然只有与 EGL 对应的相同厂商的 OpenGL 库能够实现了。
+
+这个特殊格式主要是 framebuffer 的解释方式，这些格式只有厂商最了解，为了封闭性，也为了支持各种平台，厂商不会将发送到 wayland 合成器这一动作在 EGL 的外部实现，而是自己使用 libwayland 下的工具发送，很合理。不过 EGL 显然不能包含所有 libwayland 的动作，他只是调用一部分 wayland 的 api 实现发送 framebuffer 或者其他他所需要的动作罢了
 
 ## 图形 API 之下之 DRM
-TODO
+> TODO: 搬运一些我认为重要的网上有的知识，主要是诠释我自己写过的一点点代码，简单讲讲
 
 ## AMDGPU
-TODO
+> TODO: 关于这一部分，主要是通过对 `umr` 抓取到的一个包进行诠释，介绍一下 amdgpu ring buffer 以及其 CU CP 的结构，以及一些通用的 gpu 知识
 
 ## 图形 API 之上
-TODO
+> TODO: 结合 RopUI 的 example 讨论
+
+对于前文的讨论，我们知道，图形 API 之上，其实基本上最简单的构筑就是 GLFW，他提供的能力我们通常称之为**窗口层**，他基本就包含了下面两个能力：
+
+- 事件循环与分发的能力，可以新建并挂载事件，监听与回调
+- 完成了 OpenGL 这类图形 API 的初始化，能够进行绘制，并把图像推到屏幕上
+
