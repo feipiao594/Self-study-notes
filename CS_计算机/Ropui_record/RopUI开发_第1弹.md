@@ -3,7 +3,7 @@ title: RopUI开发_第1弹
 mathjax: false
 categories:
   - CS_计算机
-  - ropui_blog
+  - Ropui_record
 abbrlink: 4de565e4
 date: 2025-12-30 01:24:39
 ---

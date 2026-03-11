@@ -336,13 +336,156 @@ int main()
 <img src="/images/客户端与Linux图形栈_图4.png" width="100%" height="100%">
 
 ## AMDGPU
-> TODO: 关于这一部分，主要是通过对 `umr` 抓取到的一个包进行诠释，介绍一下 amdgpu ring buffer 以及其 CU CP 的结构，以及一些通用的 gpu 知识
+
+> **WARNING**: 本节内容基本上是 AI 辅助探索，不确定性因素较大，好在大家并不会直接接触这方面的内容，注意打标签(unsure)的是不够确定的项，但也是具有一定可信的，只不过 AI 说出后我没有手段对其加以验证，如果有人能够解决，请联系我
 
 我们已经进入了深水区，这一部分的学习方法只有一个，阅读源码，由于 n 卡的特殊性，我们选取 amdgpu 来学习，阅读 mesa3d，与 linux 内核里提供的源码，以及 amd 官方提供的手册与工具，能对 amdgpu 有一个大致的了解已经殊为不易
 
 显卡，众所周知，具有极多的小"CPU 核心"，通过并发来实现对某些计算的加速。然后其内部有一些固定的硬件，比如硬件级的渲染管线，可以加速 3D 渲染的过程。只需要知道这点，我们就可以来对 AMDGPU 进行一个简单的了解了
 
-(To be continue)
+我们首先介绍一下一个工具 `umr`，https://umr.readthedocs.io/en/main/index.html
+
+我们此次要讲的东西包含在下面这个板块：https://umr.readthedocs.io/en/main/ring.html
+
+你可以访问我这个博客的文档仓库中的 [amdgpu_ring_grab.txt](https://github.com/feipiao594/Self-study-notes/blob/main/CS_%E8%AE%A1%E7%AE%97%E6%9C%BA/Basic_principles/Linux/amdgpu_ring_grab.txt) 来看我之前抓取的我自己电脑上的一个文件
+
+这个文件抓取的东西叫做 ring buffer，内核驱动在启动时会创建这些队列(是这些，因为并发性，不只一个环形队列，而且也不只图形渲染)，其实就是在 CPU 和 GPU 的共享内存上创建一个环形队列，通过它推送命令。环形队列其中的单一元素叫做一个 PM4 包，你可以看下面这样的一张示意图：
+
+![alt text](image.png)
+
+下面这张图是展示一下不只有一个ring，可以看到这边有两个关于图像的 ring，分别是 `amdgpu_ring_gfx_0.0.0`，`amdgpu_ring_gfx_0.1.0` 位于倒数第二列，但是其实还有别的功能的 ring，比如 comp 是指通用计算，vcn_dec，vcn_enc 是视频编解码，都会像 gfx 图像一样工作。音频不太一样，它的场景不同，这块我们就先按下不表了
+
+![alt text](image-1.png)
+
+让我们具体看看抓取的内容吧
+
+```text
+Decoding IB at 0x0@0x0 from 0x0@0x0 of 2048 words (type 4)
+[0x0@0x00000000 + 0x0000]	[        0xc0032200]	Opcode 0x22 [PKT3_COND_EXEC] (4 words, type: 3, hdr: 0xc0032200)
+[0x0@0x00000000 + 0x0004]	[        0x00401160]	|---> GPU_ADDR_LO32=0x401160
+[0x0@0x00000000 + 0x0008]	[        0x00000000]	|---> GPU_ADDR_HI32=0x0
+[0x0@0x00000000 + 0x000c]	[        0x00000000]	|---> COMMAND=0
+[0x0@0x00000000 + 0x0010]	[        0x0000001b]	|---> EXEC_COUNT=27
+[0x0@0x00000000 + 0x0014]	[        0xc0012800]	Opcode 0x28 [PKT3_CONTEXT_CONTROL] (2 words, type: 3, hdr: 0xc0012800)
+[0x0@0x00000000 + 0x0018]	[        0x80000000]	|---> LOAD_EN=1, LOAD_CS=0, LOAD_GFX=0, LOAD_GLOBAL=0, LOAD_MULTI=0, LOAD_SINGLE=0
+[0x0@0x00000000 + 0x001c]	[        0x00000000]	|---> SHADOW_EN=0, SHADOW_CS=0, SHADOW_GFX=0, SHADOW_GLOBAL=0, SHADOW_MULTI=0, SHADOW_SINGLE=0
+[0x0@0x00000000 + 0x0020]	[        0xc0009000]	Opcode 0x90 [PKT3_FRAME_CONTROL] (1 words, type: 3, hdr: 0xc0009000)
+[0x0@0x00000000 + 0x0024]	[        0x00000000]	|---> TMZ=0, COMMAND=0
+......
+```
+
+看一下我抓取文件的开头部分 2-6 行就是一个 PM4 包，他以一个 Opcode 打头，然后后面会跟着一组参数，看起来像是一个简单序列化的结构体，这样的东西通过一个环形队列交给 GPU，CPU 负责在这个环形队列上创建 PM4 来控制 AMDGPU，诶，那 shader 的 isa 怎么没看见呢？不是说 GPU 是极多的小"CPU 核心"么？
+
+其实我们忽略了一件事情，那么多小核心总要有人管的吧，这个总管的控制器，我们称其为 CP (Command Processor，命令处理器)，你可以理解为 CP 的指令就是 PM4，他将在硬件层级解析这个包并执行指令。所以 CP 其实是这个环形队列的消费者，而我们熟悉的 CPU 世界是生产者
+
+不知道你关注到没有，上面这一段代码有一个"[0x0@0x00000000 + 0x0000]"的前置信息，这段信息就是指的地址，在这里显然是指的 ring buffer，但是文件里还有别的地址，比如第 284 行
+
+```text
+......
+Decoding IB at 0x3@0x80010005ad00 from 0x0@0x28 of 176 words (type 4)
+[0x3@0x80010005ad00 + 0x0000]	[        0xc0012800]	Opcode 0x28 [PKT3_CONTEXT_CONTROL] (2 words, type: 3, hdr: 0xc0012800)
+[0x3@0x80010005ad00 + 0x0004]	[        0x80000000]	|---> LOAD_EN=1, LOAD_CS=0, LOAD_GFX=0, LOAD_GLOBAL=0, LOAD_MULTI=0, LOAD_SINGLE=0
+[0x3@0x80010005ad00 + 0x0008]	[        0x80000000]	|---> SHADOW_EN=1, SHADOW_CS=0, SHADOW_GFX=0, SHADOW_GLOBAL=0, SHADOW_MULTI=0, SHADOW_SINGLE=0
+[0x3@0x80010005ad00 + 0x000c]	[        0xc0004600]	Opcode 0x46 [PKT3_EVENT_WRITE] (1 words, type: 3, hdr: 0xc0004600)
+[0x3@0x80010005ad00 + 0x0010]	[        0x0000000e]	|---> EVENT_TYPE=[BREAK_BATCH]/14, EVENT_INDEX=0
+[0x3@0x80010005ad00 + 0x0014]	[        0xc0001200]	Opcode 0x12 [PKT3_CLEAR_STATE] (1 words, type: 3, hdr: 0xc0001200)
+[0x3@0x80010005ad00 + 0x0018]	[        0x00000000]	|---> CMD=0
+......
+```
+
+这又是怎么回事呢，你可以看到这里面内容也是 PM4，其实这些东西是通过 DMA 机制直接送给 GPU 可以读取的内存区域的，而我刚刚说了 CP 是消费者，他只会消费 ring buffer 里的 PM4 包。但其实这些其他区域的这块 PM4 包，是通过"函数调用"的机制运行的
+
+依旧查看我们的抓取的文件的内容，第 13 行：
+
+```text
+......
+[0x0@0x00000000 + 0x0028]	[        0xc0023f00]	Opcode 0x3f [PKT3_INDIRECT_BUFFER] (3 words, type: 3, hdr: 0xc0023f00)
+[0x0@0x00000000 + 0x002c]	[        0x0005ad00]	|---> IB_BASE_LO=0x5ad00, SWAP=0
+[0x0@0x00000000 + 0x0030]	[        0xffff8001]	|---> IB_BASE_HI=0x8001
+[0x0@0x00000000 + 0x0034]	[        0x030000b0]	|---> IB_SIZE=176, IB_VMID=3, CHAIN=0, PRE_ENA=0, CACHE_POLICY=0, PRE_RESUME=0, PRIV=0
+......
+```
+
+`PKT3_INDIRECT_BUFFER` 意味着这是在使用一个 indirect 的 buffer，看他的参数 `IB_BASE_LO=0x5ad00`，`IB_BASE_HI=0x8001` 分别是低位和高位，拼起来就是 0x8001|0005ad00，嗯对就是刚刚那个地方说的 `[0x3@0x80010005ad00 + 0x0000]`
+
+> [0x0@0x00000000 + 0x002c]	[        0x0005ad00]	|---> IB_BASE_LO=0x5ad00, SWAP=0，请看第二列"汇编是"0x0005ad00，是省略了高三位的 0 的
+
+不过 GPU 没有函数调用栈，它应该是通过固定几个寄存器存储的调用关系(unsure)，所以深度非常有限，可以看下面这张示意图(图片来源于，https://www.jianshu.com/p/e835413c2e1f)
+
+![alt text](image-2.png)
+
+所以 ring buffer 能调用内存里的一块 PM4 包，那当然也可以调用 shader，CP 在具体运行到某一个 ring buffer 命令的时候，会把内存里此前通过 DMA 传递的 shader 真的发射到他管辖的那堆小 "CPU" 上，而这些小 "CPU" 我们叫它为 CU (Compute Unit，计算单元)
+
+来看看文件里的 shader 内容：
+
+```text
+......
+Shader from 0x3@[0x80010005a100 + 0x6f0] at 0x3@0x800000600400, type PS (0), size 96
+Shader registers (unfiltered):
+	gfx1033.mmCB_BLEND0_CONTROL(3@0x80010005a36c) == 0x40000501
+	gfx1033.mmCB_COLOR0_ATTRIB(3@0x80010005a4ec) == 0x0
+	gfx1033.mmCB_COLOR0_ATTRIB2(3@0x80010005a548) == 0x1dfc437
+......
+Shader program:
+    pgm[3@0x800000600400 + 0x0   ] = 0xbe84047e		s_mov_b64 s[4:5], exec                                     	
+    pgm[3@0x800000600400 + 0x4   ] = 0xbefe0a7e		s_wqm_b64 exec, exec                                       	
+    pgm[3@0x800000600400 + 0x8   ] = 0xbe800303		s_mov_b32 s0, s3                                           	
+    pgm[3@0x800000600400 + 0xc   ] = 0xb0018000		s_movk_i32 s1, 0x8000                                      	
+    pgm[3@0x800000600400 + 0x10  ] = 0xbfa10001		s_clause 0x1                                               	
+    pgm[3@0x800000600400 + 0x14  ] = 0xf40c0200		s_load_dwordx8 s[8:15], s[0:1], 0x400                      	
+    pgm[3@0x800000600400 + 0x18  ] = 0xfa000400	;;                                                          	
+    pgm[3@0x800000600400 + 0x1c  ] = 0xf4080000		s_load_dwordx4 s[0:3], s[0:1], 0x430                       	
+    pgm[3@0x800000600400 + 0x20  ] = 0xfa000430	;;                                                          	
+    pgm[3@0x800000600400 + 0x24  ] = 0xbefc0307		s_mov_b32 m0, s7                                           	
+    pgm[3@0x800000600400 + 0x28  ] = 0xc8000002		v_interp_p1_f32_e32 v0, v2, attr0.x                        	
+    pgm[3@0x800000600400 + 0x2c  ] = 0xc8040102		v_interp_p1_f32_e32 v1, v2, attr0.y                        	
+    pgm[3@0x800000600400 + 0x30  ] = 0xc8010003		v_interp_p2_f32_e32 v0, v3, attr0.x                        	
+    pgm[3@0x800000600400 + 0x34  ] = 0xc8050103		v_interp_p2_f32_e32 v1, v3, attr0.y                        	
+    pgm[3@0x800000600400 + 0x38  ] = 0x87fe047e		s_and_b64 exec, exec, s[4:5]                               	
+    pgm[3@0x800000600400 + 0x3c  ] = 0xbf8cc07f		s_waitcnt lgkmcnt(0)                                       	
+    pgm[3@0x800000600400 + 0x40  ] = 0xf0800f08		image_sample v[0:3], v[0:1], s[8:15], s[0:3] dmask:0xf dim:SQ_RSRC_IMG_2D	
+    pgm[3@0x800000600400 + 0x44  ] = 0x00020000	;;                                                          	
+    pgm[3@0x800000600400 + 0x48  ] = 0xbf8c3f70		s_waitcnt vmcnt(0)                                         	
+    pgm[3@0x800000600400 + 0x4c  ] = 0x5e000300		v_cvt_pkrtz_f16_f32_e32 v0, v0, v1                         	
+    pgm[3@0x800000600400 + 0x50  ] = 0x5e020702		v_cvt_pkrtz_f16_f32_e32 v1, v2, v3                         	
+    pgm[3@0x800000600400 + 0x54  ] = 0xf8001c0f		exp mrt0 v0, v0, v1, v1 done compr vm                      	
+    pgm[3@0x800000600400 + 0x58  ] = 0x00000100	;;                                                          	
+    pgm[3@0x800000600400 + 0x5c  ] = 0xbf810000		s_endpgm                                                   	
+Done disassembly of shader
+......
+```
+
+前面是抓取时一堆 GPU 的寄存器内容，后面是 shader 具体的内容
+
+可以看到 shader 确实 DMA 进来的，第 1432 行
+
+```text
+......
+[0x3@0x80010005a100 + 0x0718]	[        0xc0055000]	Opcode 0x50 [PKT3_DMA_DATA] (6 words, type: 3, hdr: 0xc0055000)
+[0x3@0x80010005a100 + 0x071c]	[        0x60200000]	|---> ENGINE_SEL=0, SRC_CACHE_POLICY=0, DST_SEL=2, DST_CACHE_POLICY=0, SRC_SEL=3, CP_SYNC=0
+[0x3@0x80010005a100 + 0x0720]	[        0x00600400]	|---> SRC_ADDR_LO_OR_DATA=0x600400
+[0x3@0x80010005a100 + 0x0724]	[        0xffff8000]	|---> SRC_ADDR_HI=0xffff8000
+[0x3@0x80010005a100 + 0x0728]	[        0x00600400]	|---> DST_ADDR_LO=0x600400
+[0x3@0x80010005a100 + 0x072c]	[        0xffff8000]	|---> DST_ADDR_HI=0xffff8000
+......
+```
+
+然后是设置 shader 的代码，1439 行，这里就展示一个设置低位的，定位到了 `pgm[3@0x800000800300 + 0x0   ]`
+
+```test
+......
+[0x3@0x80010005a100 + 0x0734]	[        0xc0017600]	Opcode 0x76 [PKT3_SET_SH_REG] (2 words, type: 3, hdr: 0xc0017600)
+[0x3@0x80010005a100 + 0x073c]	[        0x00008003]	|---> gfx1033.mmCOMPUTE_PGM_LO=0x8003
+......
+```
+
+最终经过其他指令的一系列配置之后应当通过 `PKT3_DISPATCH_DIRECT` 这类命令发射(unsure)
+
+总而言之，这一部分就是想告诉大家，shaders 和顶点资源等是一样的，通过 DMA 传输进显卡认可的内存区域，一般情况下再在 ring buffer 里放置 PM4 包交给 CP 执行，CP 会把 shader 发射到一组 CU 里进行执行，再实际产生效果。
+
+所以这里有一些基本的事实，PM4 是 CP 的"汇编"，而 shader isa 是 CU 的"汇编"，他们俩不一样。事实上我没能在 AMD 的开放手册里翻到 PM4 和 shader isa 同时出现在一个 pdf 里。
+
+而 PM4 实际上对应的是 OpenGL 的一堆具体 API，而 shader 实质上是 glsl 文件编译的结果，他们俩可能中间都会经历复杂的转换阶段，但是显然各自单独处理的。
 
 ## 图形 API 之上
 对于前文的讨论，我们知道，图形 API 之上，其实基本上最简单的构筑就是 GLFW，他提供的能力我们通常称之为**窗口层**，他基本就只包含了下面三个能力：
@@ -374,4 +517,4 @@ int main()
 - 你的电脑上或许会安装 xf86-video-xxx 系列驱动，他们是 xorg 的老产物。x server 一部分渲染(2D等)依赖他们，x server 应当只用 mesa3d 进行 3d 渲染
 - 在上面这张总体图上，可以看见 computaion 板块，在当下 GPGPU 的出现，使得 AI 相关的技术栈实质上和图形栈极度相似。可以预想到 pytorch 对应 qt，计算图文件 onnx 对应 opengl 里 shader，算子编程更像是用户态的驱动编程，至于下方的厂商驱动，其实对于厂商完全就是同一套东西了
 - 在上面这张总体图上左侧有一个 libinput，那是一个事件处理的库，主要的用途是解释来自内核发送的输入设备事件，他可以很好的与我此前异步所讲的事件循环系统，和 ropui 里真实的调度器兼容
-- 可以看到 mesa 里还有 vaapi 这种音视频方面的用户态驱动实现，vaapi 和 opengl 一样是个协议，也有类似 libglvnd 的存在(libva)和对应的硬件驱动后端。
+- 可以看到 mesa 里还有 vaapi 这种音视频方面的用户态驱动实现，vaapi 和 opengl 一样是个协议，也有类似 libglvnd 的存在(libva)和对应的硬件驱动后端，虽然实际上他们还是有些不同。
