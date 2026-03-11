@@ -98,8 +98,3 @@ categories:
 ```
 
 顺带一提，`.gitignore`中存放了未提交的本地加密博客文件夹名字，对于这个文件夹，其中新建文件需要在原来的文件夹下创建，并且手动搬运到这个未提交的文件夹中
-
-$Smooth = \text{max\_iter} + 1 - \frac{\log(\log(z_n)/\log(R))}{\log(2)}$
-
-$1 - \frac{\log(\log(z_n)/\log(R))}{\log(2)} > 0$
-
